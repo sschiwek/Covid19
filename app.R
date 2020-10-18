@@ -38,8 +38,8 @@ populationByLandkreis <- landkreisedim%>%group_by(IdLandkreis,Landkreis)%>%summa
 
 # functions
 mywd <- getwd()
-mywd <- gsub(pattern = '/Corona',replacement = '',x = mywd)
-wd.function <- paste0(mywd, '/Corona/functions')
+#mywd <- gsub(pattern = '/Corona',replacement = '',x = mywd)
+wd.function <- paste0(mywd, '/functions')
 files.sources <- list.files(
   wd.function,
   recursive = T,
@@ -69,7 +69,7 @@ body <-
             selected = '',
             multiple = T,
             options = list(onInitialize = I('function() { this.setValue(""); }'))
-#            options = list(onInitialize = I('function() { this.setValue("Bayern"); }'))
+            #            options = list(onInitialize = I('function() { this.setValue("Bayern"); }'))
           )
         ),
         column(3, uiOutput('landkreis')),
@@ -84,18 +84,18 @@ body <-
             weekstart	= 1
           )
         ),
-tabBox(title='Rankings',
-       width=5,
-       tabPanel(title='Bundesland',status='success',
-                collapsible=TRUE,
-                DT::dataTableOutput(outputId = 'tableoutbundeslaender')
-       ),
-       tabPanel(title='Landkreis',status='success',
-                collapsible=TRUE,
-                DT::dataTableOutput(outputId = 'tableoutlandkreis')
-       )
-)
-),
+        tabBox(title='Rankings',
+               width=5,
+               tabPanel(title='Bundesland',status='success',
+                        collapsible=TRUE,
+                        DT::dataTableOutput(outputId = 'tableoutbundeslaender')
+               ),
+               tabPanel(title='Landkreis',status='success',
+                        collapsible=TRUE,
+                        DT::dataTableOutput(outputId = 'tableoutlandkreis')
+               )
+        )
+      ),
       fluidRow(
         box(
           title = 'First Look',
@@ -109,11 +109,11 @@ tabBox(title='Rankings',
         12,
         plotlyOutput('inzidenz', width = '100%')
       )),
-fluidRow(column(
-  12,
-  plotlyOutput('bundeslandgrouped', width = '100%')
-)),
-
+      fluidRow(column(
+        12,
+        plotlyOutput('bundeslandgrouped', width = '100%')
+      )),
+      
       fluidRow(column(6,
                       plotlyOutput('total', width = '100%')),
                column(6,
@@ -130,8 +130,8 @@ fluidRow(column(
       fluidRow(column(
         6,
         plotlyOutput('deaths', width = '100%')
-        ),column(6,
-                 plotlyOutput('deathratio', width = '100%'))),
+      ),column(6,
+               plotlyOutput('deathratio', width = '100%'))),
       fluidRow(column(12,
                       plotlyOutput('byAge', width = '100%'))),
       #    fluidRow(plotlyOutput('byGender', width = '100%')),
@@ -170,7 +170,7 @@ server <- function(input, output, session) {
       options = list(
         placeholder = '',
         onInitialize = I(
-#          'function() { this.setValue("München, Landeshauptstadt"); }'
+          #          'function() { this.setValue("München, Landeshauptstadt"); }'
           'function() { this.setValue(""); }'
         )
       )
@@ -208,7 +208,6 @@ server <- function(input, output, session) {
           GET(
             'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
           )
-        print(mywebcrawl$headers$`last-modified`)
         return(mywebcrawl$headers$`last-modified`)
       },
       valueFunc = function() {
@@ -263,7 +262,7 @@ server <- function(input, output, session) {
   grenzmeanyellow <- reactive(tmppopulation() / 100000 * 35 / 7)
   
   #  observe(print(tmppopulation()))
-
+  
   perday <-
     reactive({
       group_by(currentdata(), referencedate) %>% summarize(
@@ -395,13 +394,13 @@ server <- function(input, output, session) {
     #renderPlotly(
     ggplotly(plot)
   })
-
+  
   output$over60 <- renderPlotly({
     thisdata <- currentdata() %>% filter(Altersgruppe %in% c('A60-A79','A80+')&referencedate >= input$dates[1] &
-                                                                                            referencedate <= input$dates[2])%>%
-                                  group_by(referencedate) %>% summarize(total =
-                                                                            sum(AnzahlFall), .groups =
-                                                                            'drop')
+                                           referencedate <= input$dates[2])%>%
+      group_by(referencedate) %>% summarize(total =
+                                              sum(AnzahlFall), .groups =
+                                              'drop')
     
     plot <-
       ggplot(data = thisdata,
@@ -423,8 +422,8 @@ server <- function(input, output, session) {
         formula = y ~ s(x, bs = "cs")
       ) +
       geom_col() + xlab('Time') + ylab('Cases') + theme_bw() +
-#      geom_hline(yintercept = grenzmean(), color = "red") +
-#      geom_hline(yintercept = grenzmeanyellow(), color = "yellow") +
+      #      geom_hline(yintercept = grenzmean(), color = "red") +
+      #      geom_hline(yintercept = grenzmeanyellow(), color = "yellow") +
       theme(
         legend.title = element_blank(),
         legend.position = "bottom",
@@ -500,8 +499,8 @@ server <- function(input, output, session) {
         data = currentdata() %>% filter(referencedate >= input$dates[1] &
                                           referencedate <= input$dates[2])%>%
           group_by(referencedate, Altersgruppe) %>% summarize(total =
-                                                                                       sum(AnzahlFall), .groups =
-                                                                                       'drop') %>%
+                                                                sum(AnzahlFall), .groups =
+                                                                'drop') %>%
           group_by(Altersgruppe) %>% mutate(totalsperAge = sum(total)) %>%
           filter(totalsperAge != 0),
         aes(x = referencedate,
@@ -517,10 +516,10 @@ server <- function(input, output, session) {
     plot <-
       ggplot(
         data = currentdata() %>% filter(referencedate >= input$dates[1] &
-                                              referencedate <= input$dates[2])%>%
+                                          referencedate <= input$dates[2])%>%
           group_by(referencedate, Bundesland) %>% summarize(total =
-                                                                                     sum(AnzahlFall), .groups =
-                                                                                     'drop'),
+                                                              sum(AnzahlFall), .groups =
+                                                              'drop'),
         aes(x = referencedate,
             y = total)
       ) +
@@ -537,8 +536,8 @@ server <- function(input, output, session) {
         data = currentdata()%>% filter(referencedate >= input$dates[1] &
                                          referencedate <= input$dates[2])%>%
           group_by(referencedate, Altersgruppe) %>% summarize(deaths =
-                                                                                       sum(AnzahlTodesfall), .groups =
-                                                                                       'drop') %>%
+                                                                sum(AnzahlTodesfall), .groups =
+                                                                'drop') %>%
           group_by(Altersgruppe) %>% mutate(totalsperAge = sum(deaths)) %>%
           filter(totalsperAge != 0),
         aes(x = referencedate,
@@ -673,8 +672,8 @@ for (var i = 0; i < tips.length; i++) {
       formatStyle('siebentageinzidenz',
                   backgroundColor = styleInterval(c(35, 50),
                                                   c('lightgreen', 'yellow', 'red')#,
-  #                                               default = 'red'
-                                                  ))
+                                                  #                                               default = 'red'
+                  ))
   })
   casesperstate <- reactive({
     mydata() %>% filter(referencedate>=maxDate()-6)%>%group_by(Bundesland) %>%summarize(
@@ -685,7 +684,7 @@ for (var i = 0; i < tips.length; i++) {
   })
   byBundesland<-reactive({left_join(populationByBundesland,casesperstate(), by = "Bundesland")%>%
       mutate(Inzidenz=round(total/Population*100000,digits = 1))%>%
-    select(-c(total))%>%
+      select(-c(total))%>%
       arrange(desc(Inzidenz))%>%
       mutate(Population=format(Population, big.mark = ","))
   })
@@ -700,7 +699,7 @@ for (var i = 0; i < tips.length; i++) {
       select(-c(total))%>%
       arrange(desc(Inzidenz))%>%
       mutate(Population=format(Population, big.mark = ","))
-    })
+  })
   
   output$tableoutlandkreis <- DT::renderDataTable({
     DT::datatable(
@@ -739,6 +738,6 @@ for (var i = 0; i < tips.length; i++) {
     stopApp()
     q("no") 
   })
-
+  
 }
 shinyApp(ui = ui, server = server)
