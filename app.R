@@ -722,8 +722,8 @@ for (var i = 0; i < tips.length; i++) {
     DT::datatable(
       byBundesland(),
       options = list(
-        pageLength = 0,
-        lengthMenu = c(0, 1, 10, 100),
+        pageLength = 1,
+        lengthMenu = c(1, 5, 16),
         dom = 'lfrtp'
       ),
       rownames = TRUE
