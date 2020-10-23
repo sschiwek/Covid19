@@ -739,4 +739,7 @@ for (var i = 0; i < tips.length; i++) {
   })
   
 }
+
+options(shiny.port=8099)
+options(shiny.host = "0.0.0.0")
 shinyApp(ui = ui, server = server)
