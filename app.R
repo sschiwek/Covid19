@@ -109,11 +109,6 @@ body <-
         12,
         plotlyOutput('inzidenz', width = '100%')
       )),
-      fluidRow(column(
-        12,
-        plotlyOutput('bundeslandgrouped', width = '100%')
-      )),
-      
       fluidRow(column(6,
                       plotlyOutput('total', width = '100%')),
                column(6,
@@ -219,14 +214,18 @@ server <- function(input, output, session) {
         mydata$referencedate <-
           as.Date(substring(mydata$Meldedatum, 1, 10))
         # Since population only knows whole of Berlin, I update this in the numbers from RKI (11001-11012 --> 11000)
-        mydata[grepl(pattern = '110(0[1-9]|1[0-2])', x = mydata$IdLandkreis),]$IdLandkreis <-
-          '11000'
+        if(!identical(character(0),mydata[grepl(pattern = '110(0[1-9]|1[0-2])', x = mydata$IdLandkreis),]$IdLandkreis)){
+          mydata[grepl(pattern = '110(0[1-9]|1[0-2])', x = mydata$IdLandkreis),]$IdLandkreis <-
+            '11000'
+        }else{print('Daten unvollständig')} 
         
         #bayerndata <- mydata %>% filter(Bundesland == 'Bayern')
         #munichdata <-
         #  bayerndata %>% filter(Landkreis == 'SK München')
         #return(munichdata)
         #mydata <- mydata%>%filter(IdLandkreis %in% myid())
+        # since sometimes data was missing...
+        print(nrow(mydata))
         return(mydata)
       }
     )
@@ -598,8 +597,8 @@ var tips = ['referencedate', 'Cases on that day; Meaning of the color: State of 
             'How many more cases would have meant a siebentageinzidenz over 35',
             'Amount of cases from 8 days before referencedate (= number of cases that were removed from the siebentageinzidenz calculation on referencedate)',
             'Amount of cases from 7 days before referencedate (= number of cases that will be removed on the next day from the siebentageinzidenz-calculation)',
-            '((missing to red) + removednext) ( = how many cases on the next day would mean a siebentageinzidenz over 50',
-            '((missing to yellow) + removednext) ( = how many cases on the next day would mean a siebentageinzidenz over 35',
+            '((missing to red) + removednext) ( = how many cases on the next day would mean a siebentageinzidenz over 50)',
+            '((missing to yellow) + removednext) ( = how many cases on the next day would mean a siebentageinzidenz over 35)',
 
             'total - removed'],
     header = table.columns().header();
