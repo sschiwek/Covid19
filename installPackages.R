@@ -8,7 +8,8 @@ list.of.packages <-
     "DT",
     'httr',
     'ggplot2',
-    'plotly'
+    'plotly',
+	'pryr'
   )
 new.packages <-
   list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]

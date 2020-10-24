@@ -22,5 +22,7 @@ while(TRUE==TRUE){
   }
   
   #wait for one hour, then check again.
-  Sys.sleep(3600)
+  n <- 3600
+  print(paste('Next check will be at ',Sys.time()+n))
+  Sys.sleep(n)
 }
