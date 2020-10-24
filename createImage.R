@@ -18,7 +18,7 @@ if(!identical(character(0),
 ){
   mydata[grepl(pattern = '110(0[1-9]|1[0-2])',
                x = mydata$IdLandkreis),]$IdLandkreis <- '11000'
-}else{print('Daten unvollständig')} 
+}else{print('Daten unvollstÃ¤ndig')} 
 print(nrow(mydata))
 maxDate <- max(mydata$referencedate)
 minDate <- min(mydata$referencedate)
@@ -46,8 +46,8 @@ population <-
     startRow = 3
   )
 landkreisedim <-
-  population %>% select(IdLandkreis = 'Schlüssel-nummer',
-                        Population = `Bevölkerung2)`,
+  population %>% select(IdLandkreis = 'SchlÃ¼ssel-nummer',
+                        Population = `BevÃ¶lkerung2)`,
                         Landkreis = `Kreisfreie.Stadt`) %>% filter(nchar(IdLandkreis) == 5) %>% mutate(id =
                                                                                                          c(substring(IdLandkreis, 1, 2)))
 # Since the official Munich page takes Munich numbers from 2018-12-31, I use this
@@ -55,7 +55,7 @@ landkreisedim[landkreisedim$IdLandkreis == '09162',]$Population <-
   1471508
 
 bundeslaender <-
-  population %>% select(id = `Schlüssel-nummer`, Bundesland = Regionale.Bezeichnung) %>%
+  population %>% select(id = `SchlÃ¼ssel-nummer`, Bundesland = Regionale.Bezeichnung) %>%
   filter(nchar(id) == 2)
 
 landkreisedim <-
