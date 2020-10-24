@@ -1,5 +1,7 @@
 # save with Encoding Windows-1252 (when done with Rscript in terminal)
-# when done via Runapp in seperate R file: doch in UTF 8
+# when done via Runapp in seperate R file: in UTF 8
+mywd <- getwd()
+load(paste0(mywd,'/data.Rdata'))
 library(jsonlite)
 library(dplyr)
 library(ggplot2)
@@ -9,36 +11,8 @@ library(shinydashboard)
 library(DT)
 library(httr)
 library(openxlsx)
-# Stats from 2019-12-31
-population <-
-  read.xlsx(
-    'https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/04-kreise.xlsx;jsessionid=5D16A0CE74B2CE61F0DC52ED94E6C8A5.internet8711?__blob=publicationFile',
-    sheet = 2,
-    startRow = 3
-  )
-landkreisedim <-
-  population %>% select(IdLandkreis = 'Schlüssel-nummer',
-                        Population = `Bevölkerung2)`,
-                        Landkreis = `Kreisfreie.Stadt`) %>% filter(nchar(IdLandkreis) == 5) %>% mutate(id =
-                                                                                                         c(substring(IdLandkreis, 1, 2)))
-# Since the official Munich page takes Munich numbers from 2018-12-31, I use this
-landkreisedim[landkreisedim$IdLandkreis == '09162',]$Population <-
-  1471508
-
-bundeslaender <-
-  population %>% select(id = `Schlüssel-nummer`, Bundesland = Regionale.Bezeichnung) %>%
-  filter(nchar(id) == 2)
-
-landkreisedim <-
-  left_join(landkreisedim, bundeslaender, by = c('id' = 'id'))
-landkreisedim$id = NULL
-
-populationByBundesland <- landkreisedim%>%group_by(Bundesland)%>%summarise(Population=sum(as.double(Population)),.groups='drop')
-populationByLandkreis <- landkreisedim%>%group_by(IdLandkreis,Landkreis)%>%summarise(Population=sum(as.double(Population)),.groups='drop')
 
 # functions
-mywd <- getwd()
-#mywd <- gsub(pattern = '/Corona',replacement = '',x = mywd)
 wd.function <- paste0(mywd, '/functions')
 files.sources <- list.files(
   wd.function,
@@ -194,60 +168,20 @@ server <- function(input, output, session) {
       return(tmppop$IdLandkreis)
     })
   
-  mydata <-
-    reactivePoll(
-      intervalMillis = 10 * 60 * 1000,
-      session = session,
-      checkFunc = function() {
-        mywebcrawl <-
-          GET(
-            'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
-          )
-        return(mywebcrawl$headers$`last-modified`)
-      },
-      valueFunc = function() {
-        mydata <-
-          fromJSON(
-            'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
-          )
-        mydata <- mydata[[3]]$properties
-        mydata$referencedate <-
-          as.Date(substring(mydata$Meldedatum, 1, 10))
-        # Since population only knows whole of Berlin, I update this in the numbers from RKI (11001-11012 --> 11000)
-        if(!identical(character(0),mydata[grepl(pattern = '110(0[1-9]|1[0-2])', x = mydata$IdLandkreis),]$IdLandkreis)){
-          mydata[grepl(pattern = '110(0[1-9]|1[0-2])', x = mydata$IdLandkreis),]$IdLandkreis <-
-            '11000'
-        }else{print('Daten unvollständig')} 
-        
-        #bayerndata <- mydata %>% filter(Bundesland == 'Bayern')
-        #munichdata <-
-        #  bayerndata %>% filter(Landkreis == 'SK München')
-        #return(munichdata)
-        #mydata <- mydata%>%filter(IdLandkreis %in% myid())
-        # since sometimes data was missing...
-        print(nrow(mydata))
-        return(mydata)
-      }
-    )
   # vector zurückgeben
   currentdata <-
     reactive({
-      mydata() %>% filter(IdLandkreis %in% myid())
+      mydata %>% filter(IdLandkreis %in% myid())
     })
-  maxDate <- reactive({
-    max(mydata()$referencedate)
-  })
-  minDate <- reactive({
-    min(mydata()$referencedate)
-  })
+
   observe({
     updateDateRangeInput(
       session = session,
       inputId = 'dates',
-      start = minDate(),
-      end = maxDate(),
-      min = minDate(),
-      max = maxDate()
+      start = minDate,
+      end = maxDate,
+      min = minDate,
+      max = maxDate
     )
   })
   
@@ -296,7 +230,7 @@ server <- function(input, output, session) {
         tomorrowmaxtoYellow = missingtoYellow + removednext
         
       ) %>%
-      filter(referencedate >= (minDate() + 7)) %>%
+      filter(referencedate >= (minDate + 7)) %>%
       mutate(
         trend = total - removed,
         trendgoodBad = case_when(trend > 0 ~ 'BAD',
@@ -549,20 +483,6 @@ server <- function(input, output, session) {
     ggplotly(plot)
   })
   
-  # output$byGender <- renderPlotly({
-  # plot <-
-  #   ggplot(
-  #     data = munichdata() %>% group_by(referencedate, Geschlecht) %>% summarize(total =
-  #                                                                               sum(AnzahlFall)),
-  #     aes(x = referencedate,
-  #         y = total)
-  #   ) +
-  #   geom_line() + xlab('Time') + ylab('Fälle nach Geschlecht') + theme_bw() +
-  #   scale_colour_brewer(type = 'qual') +
-  #   facet_wrap( ~ Geschlecht, scales = 'free_y')
-  # ggplotly(plot)
-  # })
-  
   
   output$tableout4 <- DT::renderDataTable({
     DT::datatable(
@@ -674,35 +594,10 @@ for (var i = 0; i < tips.length; i++) {
                                                   #                                               default = 'red'
                   ))
   })
-  casesperstate <- reactive({
-    mydata() %>% filter(referencedate>=maxDate()-6)%>%group_by(Bundesland) %>%summarize(
-      total = sum(AnzahlFall),
-      #    deaths = sum(AnzahlTodesfall),
-      .groups = 'drop'
-    )
-  })
-  byBundesland<-reactive({left_join(populationByBundesland,casesperstate(), by = "Bundesland")%>%
-      mutate(Inzidenz=round(total/Population*100000,digits = 1))%>%
-      select(-c(total))%>%
-      arrange(desc(Inzidenz))%>%
-      mutate(Population=format(Population, big.mark = ","))
-  })
-  casesperlandkreis <-reactive({
-    mydata() %>% filter(referencedate>=maxDate()-6)%>%group_by(IdLandkreis) %>%summarize(
-      total = sum(AnzahlFall),
-      #    deaths = sum(AnzahlTodesfall),
-      .groups = 'drop'
-    )})
-  bylandkreis <- reactive({left_join(populationByLandkreis,casesperlandkreis(), by = "IdLandkreis")%>%
-      mutate(Inzidenz=round(total/Population*100000,digits = 1))%>%
-      select(-c(total))%>%
-      arrange(desc(Inzidenz))%>%
-      mutate(Population=format(Population, big.mark = ","))
-  })
   
   output$tableoutlandkreis <- DT::renderDataTable({
     DT::datatable(
-      bylandkreis() %>% filter(IdLandkreis %in% myid())%>%select(-c(IdLandkreis)),
+      bylandkreis %>% filter(IdLandkreis %in% myid())%>%select(-c(IdLandkreis)),
       options = list(
         pageLength = 10,
         dom = 'frtp'
@@ -719,7 +614,7 @@ for (var i = 0; i < tips.length; i++) {
   
   output$tableoutbundeslaender <- DT::renderDataTable({
     DT::datatable(
-      byBundesland(),
+      byBundesland,
       options = list(
         pageLength = 1,
         lengthMenu = c(1, 5, 16),
@@ -733,11 +628,7 @@ for (var i = 0; i < tips.length; i++) {
                                                   #                                               default = 'red'
                   ))
   })
-  session$onSessionEnded(function() { 
-    stopApp()
-    q("no") 
-  })
-  
+
 }
 
 options(shiny.port=8099)
