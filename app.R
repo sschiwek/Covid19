@@ -1,7 +1,15 @@
 # save with Encoding Windows-1252 (when done with Rscript in terminal)
 # when done via Runapp in seperate R file: in UTF 8
 mywd <- getwd()
-load(paste0(mywd,'/data.Rdata'))
+imagefile<- paste0(mywd,'/data.Rdata')
+load(imagefile)
+# create new environement, to get data frame names from it (for updating them later)
+env.source <- new.env()
+load(imagefile, envir = env.source)
+env.source.names<-names(env.source)
+rm(env.source)
+# -----------------------------------------------------
+
 library(jsonlite)
 library(dplyr)
 library(ggplot2)
@@ -128,6 +136,25 @@ ui <- fluidPage(withMathJax(),
                 dashboardPage(header, sidebar, body))
 
 server <- function(input, output, session) {
+  observe({
+    #do this every 60000 milliseconds
+    # 
+    invalidateLater(6000000,session)
+    #	print(sort( sapply(ls(),function(x){object_size(get(x))})))
+    #go through all elements of image
+    #new environment.
+    n<-new.env()
+    #load image INTO THAT environment
+    env<- load(imagefile, envir = n)
+    for(name.cur in env.source.names){
+      #current environment (so the assigned parameters can be assigned to the parent environment.)
+      e<-environment()
+      #give name.cur (one of the elements of image) the value from newly created environment (with all parameters), filter the name.cur element from this) 
+      assign(name.cur,n[[name.cur]],envir = parent.env(e))
+      
+    }
+    print(pryr::mem_used())
+  })
   output$landkreis <- renderUI({
     mylandkreise <-
       landkreisedim %>% filter(Bundesland %in% selected_choices_bundesland())
