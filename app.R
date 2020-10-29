@@ -20,6 +20,9 @@ library(DT)
 library(httr)
 library(openxlsx)
 
+colorred <- 'tomato'
+colordarkred <- 'red'
+
 # functions
 wd.function <- paste0(mywd, '/functions')
 files.sources <- list.files(
@@ -218,6 +221,7 @@ server <- function(input, output, session) {
       return(sum(as.double(returnvalue$Population)))
     })
   # calculating Schwellen- and Signalwert
+  grenzmeandarkred <- reactive(tmppopulation() / 100000 * 100 / 7)
   grenzmean <- reactive(tmppopulation() / 100000 * 50 / 7)
   grenzmeanyellow <- reactive(tmppopulation() / 100000 * 35 / 7)
   
@@ -242,6 +246,7 @@ server <- function(input, output, session) {
         ),
         siebentagetotal = getsiebentagetotal(referencedate, perday()),
         state = case_when(
+          siebentageinzidenz > 100 ~ 'DARKRED',
           siebentageinzidenz > 50 ~ 'RED',
           siebentageinzidenz > 35 ~ 'YELLOW',
           TRUE ~ 'GREEN'
@@ -263,6 +268,7 @@ server <- function(input, output, session) {
         trendgoodBad = case_when(trend > 0 ~ 'BAD',
                                  TRUE ~ 'GOOD'),
         statereferencedate = case_when(
+          total > grenzmeandarkred() ~ 'DARKRED',
           total > grenzmean() ~ 'RED',
           total > grenzmeanyellow() ~ 'YELLOW',
           TRUE ~ 'GREEN'
@@ -298,7 +304,8 @@ server <- function(input, output, session) {
         formula = y ~ s(x, bs = "cs")
       ) +
       geom_line() + xlab('Time') + ylab('Siebentageinzidenz') + theme_bw() +
-      geom_hline(yintercept = 50, color = "red") +
+      geom_hline(yintercept = 100, color = colordarkred) +
+      geom_hline(yintercept = 50, color = colorred) +
       geom_hline(yintercept = 35, color = "yellow") +
       theme(
         legend.title = element_blank(),
@@ -342,7 +349,8 @@ server <- function(input, output, session) {
         formula = y ~ s(x, bs = "cs")
       ) +
       geom_col() + xlab('Time') + ylab('Cases') + theme_bw() +
-      geom_hline(yintercept = grenzmean(), color = "red") +
+      geom_hline(yintercept = grenzmeandarkred(), color = colordarkred) +
+      geom_hline(yintercept = grenzmean(), color = colorred) +
       geom_hline(yintercept = grenzmeanyellow(), color = "yellow") +
       theme(
         legend.title = element_blank(),
@@ -535,9 +543,11 @@ var tips = ['referencedate', 'Cases on that day; Meaning of the color: State of 
           floor(grenzmeanyellow()),
           ", Red: > ",
           floor(grenzmean()),
+          ", DarkRed: > ",
+          floor(grenzmeandarkred()),
           ", Yellow: Else',
             'Deaths on that day',
-            '(cases for the last 7 days) / (population) * 100,000; Red: > 50, Green: <=35, Yellow: Else',
+            '(cases for the last 7 days) / (population) * 100,000; Darkred > 100, Red: > 50, Green: <=35, Yellow: Else',
             'Sum of cases for the last 7 days',
             'will be removed',
             'How many more cases would have meant a siebentageinzidenz over 50',
@@ -559,14 +569,14 @@ for (var i = 0; i < tips.length; i++) {
     ) %>%
       formatStyle('siebentageinzidenz',
                   'state',
-                  backgroundColor = styleEqual(c('GREEN', 'YELLOW'),
-                                               c('lightgreen', 'yellow'),
-                                               default = 'red')) %>%
+                  backgroundColor = styleEqual(c('GREEN', 'YELLOW','RED'),
+                                               c('lightgreen', 'yellow', colorred),
+                                               default = colordarkred)) %>%
       formatStyle('total',
                   'statereferencedate',
-                  backgroundColor = styleEqual(c('GREEN', 'YELLOW'),
-                                               c('lightgreen', 'yellow'),
-                                               default = 'red')) %>%
+                  backgroundColor = styleEqual(c('GREEN', 'YELLOW','RED'),
+                                               c('lightgreen', 'yellow',colorred),
+                                               default = colordarkred)) %>%
       formatPercentage('deathratio', 2)
   })
   
@@ -616,8 +626,8 @@ for (var i = 0; i < tips.length; i++) {
       class = 'cell-border stripe'
     ) %>%
       formatStyle('siebentageinzidenz',
-                  backgroundColor = styleInterval(c(35, 50),
-                                                  c('lightgreen', 'yellow', 'red')#,
+                  backgroundColor = styleInterval(c(35, 50, 100),
+                                                  c('lightgreen', 'yellow', colorred, colordarkred)#,
                                                   #                                               default = 'red'
                   ))
   })
@@ -632,8 +642,8 @@ for (var i = 0; i < tips.length; i++) {
       rownames = TRUE
     ) %>%
       formatStyle('Inzidenz',
-                  backgroundColor = styleInterval(c(35, 50),
-                                                  c('lightgreen', 'yellow', 'red')#,
+                  backgroundColor = styleInterval(c(35, 50, 100),
+                                                  c('lightgreen', 'yellow', colorred, colordarkred)#,
                                                   #                                               default = 'red'
                   ))
     
@@ -650,8 +660,8 @@ for (var i = 0; i < tips.length; i++) {
       rownames = TRUE
     ) %>%
       formatStyle('Inzidenz',
-                  backgroundColor = styleInterval(c(35, 50),
-                                                  c('lightgreen', 'yellow', 'red')#,
+                  backgroundColor = styleInterval(c(35, 50, 100),
+                                                  c('lightgreen', 'yellow', colorred, colordarkred)#,
                                                   #                                               default = 'red'
                   ))
   })
