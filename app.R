@@ -251,6 +251,7 @@ server <- function(input, output, session) {
           siebentageinzidenz > 35 ~ 'YELLOW',
           TRUE ~ 'GREEN'
         ),
+        missingtoDarkRed = round(grenzmeandarkred() * 7 - siebentagetotal),
         missingtoRed = round(grenzmean() * 7 - siebentagetotal),
         missingtoYellow = round(grenzmeanyellow() * 7 - siebentagetotal)
       ) %>%
@@ -258,6 +259,7 @@ server <- function(input, output, session) {
       mutate(
         removed = lag(x = total, n = 7),
         removednext = lag(x = total, n = 6),
+        tomorrowmaxtoDarkRed = missingtoDarkRed + removednext,
         tomorrowmaxtoRed = missingtoRed + removednext,
         tomorrowmaxtoYellow = missingtoYellow + removednext
         
@@ -530,7 +532,7 @@ server <- function(input, output, session) {
         dom = 'Bflrtip',
         buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
         columnDefs = list(list(
-          targets = c(5, 13), visible = FALSE
+          targets = c(5,9,10,15), visible = FALSE
         ))
       ),
       rownames = F,
@@ -550,14 +552,17 @@ var tips = ['referencedate', 'Cases on that day; Meaning of the color: State of 
             '(cases for the last 7 days) / (population) * 100,000; Darkred > 100, Red: > 50, Green: <=35, Yellow: Else',
             'Sum of cases for the last 7 days',
             'will be removed',
+            'How many more cases would have meant a siebentageinzidenz over 100',
             'How many more cases would have meant a siebentageinzidenz over 50',
             'How many more cases would have meant a siebentageinzidenz over 35',
-            'Amount of cases from 8 days before referencedate (= number of cases that were removed from the siebentageinzidenz calculation on referencedate)',
-            'Amount of cases from 7 days before referencedate (= number of cases that will be removed on the next day from the siebentageinzidenz-calculation)',
+            'will be removed',
+            'will be removed',
+            '((missing to darkred) + removednext) ( = how many cases on the next day would mean a siebentageinzidenz over 100)',
             '((missing to red) + removednext) ( = how many cases on the next day would mean a siebentageinzidenz over 50)',
             '((missing to yellow) + removednext) ( = how many cases on the next day would mean a siebentageinzidenz over 35)',
-
-            'total - removed'],
+            'total today - removed today from siebentageinzidenz (= total today - total from 8 days ago',
+            'will be removed',
+            'deaths / total'],
     header = table.columns().header();
 for (var i = 0; i < tips.length; i++) {
   $(header[i]).attr('title', tips[i]);
