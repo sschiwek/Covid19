@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 nohup Rscript test.R  > test.log 2>&1 &
-Rscript test.R
+nohup Rscript test.R  > test1.log 2>&1 &
 
 echo 'finished v.2a'
