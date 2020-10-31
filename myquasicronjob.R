@@ -4,6 +4,7 @@ mywebcrawl <-
     'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
   )
 lastModified <- mywebcrawl$headers$`last-modified`
+rm(mywebcrawl)
 print(paste0('Content Last Modified: ',lastModified))
 while(TRUE==TRUE){
   mywebcrawl <-
@@ -11,6 +12,7 @@ while(TRUE==TRUE){
       'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
     )
   lastModified1 <- mywebcrawl$headers$`last-modified`
+  rm(mywebcrawl)
   print(paste0('Content Last Modified: ',lastModified1))
   print(paste0('checking at: ',Sys.time()))
   if(lastModified1!=lastModified){
