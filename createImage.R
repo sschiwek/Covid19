@@ -84,5 +84,4 @@ bylandkreis <- left_join(populationByLandkreis,
                            big.mark = ",")
   )
 mywd <- getwd()
-print(mywd)
 save.image(paste0(mywd,'/data.Rdata'))
