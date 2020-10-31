@@ -610,9 +610,11 @@ for (var i = 0; i < tips.length; i++) {
           filter(row_number()  ==  1) %>%
           select(
             siebentageinzidenz,
+            tomorrowmaxtoDarkRed,
             tomorrowmaxtoRed,# = format(tomorrowmaxtoRed, big.mark = ","),
             tomorrowmaxtoYellow# = format(tomorrowmaxtoYellow, big.mark = ",")
-          )%>%mutate(tomorrowmaxtoRed = format(tomorrowmaxtoRed, big.mark = ","),
+          )%>%mutate(tomorrowmaxtoDarkRed = format(tomorrowmaxtoDarkRed, big.mark = ","),
+                     tomorrowmaxtoRed = format(tomorrowmaxtoRed, big.mark = ","),
                      tomorrowmaxtoYellow = format(tomorrowmaxtoYellow, big.mark = ",")),
         population = format(tmppopulation()
                             , big.mark = ",")
