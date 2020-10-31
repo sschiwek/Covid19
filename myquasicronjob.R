@@ -5,6 +5,7 @@ mywebcrawl <-
   )
 lastModified <- mywebcrawl$headers$`last-modified`
 rm(mywebcrawl)
+gc()
 print(paste0('Content Last Modified: ',lastModified))
 while(TRUE==TRUE){
   mywebcrawl <-
@@ -13,6 +14,7 @@ while(TRUE==TRUE){
     )
   lastModified1 <- mywebcrawl$headers$`last-modified`
   rm(mywebcrawl)
+  gc()
   print(paste0('Content Last Modified: ',lastModified1))
   print(paste0('checking at: ',Sys.time()))
   if(lastModified1!=lastModified){
