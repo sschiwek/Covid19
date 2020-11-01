@@ -4,7 +4,8 @@ library(openxlsx)
 
 mydata <-
   read.csv('https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data',encoding = 'UTF-8')
-
+# add leading zeros
+mydata$IdLandkreis <- table(sprintf("%05d", mydata$IdLandkreis))
 mydata$referencedate <- as.Date(substring(mydata$Meldedatum, 1, 10))
 
 # Since population only knows whole of Berlin, I update this in the numbers from RKI (11001-11012 --> 11000)
