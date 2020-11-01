@@ -1,13 +1,10 @@
 # creating image for later import
-library(jsonlite)
 library(dplyr)
 library(openxlsx)
 
 mydata <-
-  fromJSON(
-    'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
-  )
-mydata <- mydata[[3]]$properties
+  read.csv('https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data',encoding = 'UTF-8')
+
 mydata$referencedate <- as.Date(substring(mydata$Meldedatum, 1, 10))
 
 # Since population only knows whole of Berlin, I update this in the numbers from RKI (11001-11012 --> 11000)
