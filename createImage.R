@@ -61,7 +61,7 @@ landkreisedim <-
 landkreisedim$id = NULL
 
 populationByBundesland <- landkreisedim%>%group_by(Bundesland)%>%summarise(Population=sum(as.double(Population)),.groups='drop')
-populationByLandkreis <- landkreisedim%>%group_by(IdLandkreis,Landkreis)%>%summarise(Population=sum(as.double(Population)),.groups='drop')
+populationByLandkreis <- landkreisedim%>%group_by(IdLandkreis,Landkreis,Bundesland)%>%summarise(Population=sum(as.double(Population)),.groups='drop')
 
 byBundesland<-left_join(populationByBundesland,
                         casesperstate,
