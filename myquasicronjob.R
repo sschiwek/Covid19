@@ -1,20 +1,11 @@
-library(httr)
-mywebcrawl <-
-  GET(
-    'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
-  )
-lastModified <- mywebcrawl$headers$`last-modified`
-rm(mywebcrawl)
-gc()
+mydata <-
+  read.csv('https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data',encoding = 'UTF-8',nrows = 1)
+lastModified <- mydata$Datenstand
 print(paste0('Content Last Modified: ',lastModified))
 while(TRUE==TRUE){
-  mywebcrawl <-
-    GET(
-      'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.geojson'
-    )
-  lastModified1 <- mywebcrawl$headers$`last-modified`
-  rm(mywebcrawl)
-  gc()
+  mydata <-
+    read.csv('https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data',encoding = 'UTF-8',nrows = 1)
+  lastModified1 <- mydata$Datenstand
   print(paste0('Content Last Modified: ',lastModified1))
   print(paste0('checking at: ',Sys.time()))
   if(lastModified1!=lastModified){
