@@ -81,5 +81,8 @@ bylandkreis <- left_join(populationByLandkreis,
   mutate(Population=format(Population,
                            big.mark = ",")
   )
+rm(populationByLandkreis)
+rm(populationByBundesland)
+gc()
 mywd <- getwd()
 save.image(paste0(mywd,'/data.Rdata'))
