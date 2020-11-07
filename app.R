@@ -156,7 +156,6 @@ server <- function(input, output, session) {
       assign(name.cur,n[[name.cur]],envir = parent.env(e))
       
     }
-    print(pryr::mem_used())
   })
   output$landkreis <- renderUI({
     mylandkreise <-
@@ -286,8 +285,7 @@ server <- function(input, output, session) {
   
   output$inzidenz <-  renderPlotly({
     plot <-
-      ggplot(data = perdaynewdatesfiltered()
-             ,
+      ggplot(data = perdaynewdatesfiltered(),
              aes(x = referencedate,
                  y = siebentageinzidenz)) +
       xlim(c(
@@ -296,7 +294,7 @@ server <- function(input, output, session) {
           perdaynewdatesfiltered()$referencedate
         ) + 100)
       )) +
-      coord_cartesian(ylim = c(0, 1.2*max(
+      coord_cartesian(ylim = c(0, 1.1*max(
         perdaynewdatesfiltered()$siebentageinzidenz
       ) +
         50)) +
@@ -384,7 +382,7 @@ server <- function(input, output, session) {
       )) +
       coord_cartesian(ylim = c(
         0,
-        1.2*max(thisdata$total)
+        1.1*max(thisdata$total)
       )) +
       stat_smooth(
         fullrange = TRUE,
@@ -416,7 +414,7 @@ server <- function(input, output, session) {
           perdaynewdatesfiltered()$referencedate
         ) + 100)
       )) +
-      coord_cartesian(ylim = c(0, 1.2*max(perdaynewdatesfiltered()$deaths))) +
+      coord_cartesian(ylim = c(0, 1.1*max(perdaynewdatesfiltered()$deaths))) +
       stat_smooth(
         fullrange = TRUE,
         method = 'gam',
@@ -444,7 +442,7 @@ server <- function(input, output, session) {
           perdaynewdatesfiltered()$referencedate
         ) + 100)
       )) +
-      coord_cartesian(ylim = c(0, 1.2*max(
+      coord_cartesian(ylim = c(0, 1.1*max(
         perdaynewdatesfiltered()$deathratio
       ))) +
       stat_smooth(
