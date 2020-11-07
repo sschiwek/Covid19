@@ -296,7 +296,7 @@ server <- function(input, output, session) {
       )) +
       coord_cartesian(ylim = c(0, 1.2*max(
         perdaynewdatesfiltered()$siebentageinzidenz
-      ))) +
+      ) + 20)) +
       stat_smooth(
         fullrange = TRUE,
         method = 'gam',
