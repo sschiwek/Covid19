@@ -294,10 +294,9 @@ server <- function(input, output, session) {
           perdaynewdatesfiltered()$referencedate
         ) + 100)
       )) +
-      coord_cartesian(ylim = c(0, 1.1*max(
+      coord_cartesian(ylim = c(0, 1.2*max(
         perdaynewdatesfiltered()$siebentageinzidenz
-      ) +
-        50)) +
+      ))) +
       stat_smooth(
         fullrange = TRUE,
         method = 'gam',
@@ -382,7 +381,7 @@ server <- function(input, output, session) {
       )) +
       coord_cartesian(ylim = c(
         0,
-        1.1*max(thisdata$total)
+        1.2*max(thisdata$total)
       )) +
       stat_smooth(
         fullrange = TRUE,
@@ -414,7 +413,7 @@ server <- function(input, output, session) {
           perdaynewdatesfiltered()$referencedate
         ) + 100)
       )) +
-      coord_cartesian(ylim = c(0, 1.1*max(perdaynewdatesfiltered()$deaths))) +
+      coord_cartesian(ylim = c(0, 1.2*max(perdaynewdatesfiltered()$deaths))) +
       stat_smooth(
         fullrange = TRUE,
         method = 'gam',
@@ -442,7 +441,7 @@ server <- function(input, output, session) {
           perdaynewdatesfiltered()$referencedate
         ) + 100)
       )) +
-      coord_cartesian(ylim = c(0, 1.1*max(
+      coord_cartesian(ylim = c(0, 1.2*max(
         perdaynewdatesfiltered()$deathratio
       ))) +
       stat_smooth(
