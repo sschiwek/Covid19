@@ -1,3 +1,4 @@
+Sys.setenv(TZ='Europe/Berlin')
 mydata <-
   read.csv('https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data',encoding = 'UTF-8',nrows = 1)
 lastModified <- mydata$Datenstand
