@@ -51,6 +51,7 @@ landkreisedim <-
 # Since the official Munich page takes Munich numbers from 2018-12-31, I use this
 landkreisedim[landkreisedim$IdLandkreis == '09162',]$Population <-
   1471508
+# Ivan: is it only the case for Munich? If not, then this might lead to false results for other areas in respect to Munich
 
 bundeslaender <-
   population %>% select(id = `Schlüssel-nummer`, Bundesland = Regionale.Bezeichnung) %>%
